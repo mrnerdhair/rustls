@@ -12,7 +12,7 @@ use crate::log::{debug, trace};
 use crate::msgs::base::Payload;
 use crate::msgs::enums::{Compression, ExtensionType};
 use crate::msgs::enums::{ECPointFormat, PSKKeyExchangeMode};
-use crate::msgs::handshake::ConvertProtocolNameList;
+use crate::msgs::handshake::{ConvertProtocolNameList, UnknownExtension};
 use crate::msgs::handshake::{CertificateStatusRequest, ClientSessionTicket};
 use crate::msgs::handshake::{ClientExtension, HasServerExtensions};
 use crate::msgs::handshake::{ClientHelloPayload, HandshakeMessagePayload, HandshakePayload};
@@ -133,12 +133,13 @@ pub(super) fn start_handshake(
 
     // https://tools.ietf.org/html/rfc8446#appendix-D.4
     // https://tools.ietf.org/html/draft-ietf-quic-tls-34#section-8.4
-    let session_id = match session_id {
-        Some(session_id) => session_id,
-        None if cx.common.is_quic() => SessionId::empty(),
-        None if !config.supports_version(ProtocolVersion::TLSv1_3) => SessionId::empty(),
-        None => SessionId::random(config.provider.secure_random)?,
-    };
+    // let session_id = match session_id {
+    //     Some(session_id) => session_id,
+    //     None if cx.common.is_quic() => SessionId::empty(),
+    //     None if !config.supports_version(ProtocolVersion::TLSv1_3) => SessionId::empty(),
+    //     None => SessionId::random(config.provider.secure_random)?,
+    // };
+    let session_id = SessionId::empty();
 
     let random = Random::new(config.provider.secure_random)?;
 
@@ -215,7 +216,7 @@ fn emit_client_hello_for_retry(
 
     let mut exts = vec![
         ClientExtension::SupportedVersions(supported_versions),
-        ClientExtension::EcPointFormats(ECPointFormat::SUPPORTED.to_vec()),
+        // ClientExtension::EcPointFormats(ECPointFormat::SUPPORTED.to_vec()),
         ClientExtension::NamedGroups(
             config
                 .provider
@@ -229,8 +230,10 @@ fn emit_client_hello_for_retry(
                 .verifier
                 .supported_verify_schemes(),
         ),
-        ClientExtension::ExtendedMasterSecretRequest,
-        ClientExtension::CertificateStatusRequest(CertificateStatusRequest::build_ocsp()),
+        // ClientExtension::ExtendedMasterSecretRequest,
+        // ClientExtension::CertificateStatusRequest(CertificateStatusRequest::build_ocsp()),
+        ClientExtension::RecordSizeLimit(0x4001),
+        ClientExtension::RenegotiationInfo(crate::msgs::base::PayloadU8(vec![])),
     ];
 
     if let (ServerName::DnsName(dns), true) = (&input.server_name, config.enable_sni) {
@@ -271,12 +274,36 @@ fn emit_client_hello_for_retry(
     // Do we have a SessionID or ticket cached for this host?
     let tls13_session = prepare_resumption(&input.resuming, &mut exts, suite, cx, config);
 
+    assert_eq!(9, exts.len());
+    // 0: SupportedVersions
+    // 1: NamedGroups
+    // 2: SignatureAlgorithms
+    // 3: RecordSizeLimit
+    // 4: RenegotiationInfo
+    // 5: ServerName
+    // 6: KeyShare
+    // 7: PresharedKeyModes
+    // 8: SessionTicket
+
+    let exts = vec![
+        std::mem::replace(&mut exts[5], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[4], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[1], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[8], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[6], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[0], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[2], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[7], ClientExtension::EarlyData),
+        std::mem::replace(&mut exts[3], ClientExtension::EarlyData),
+    ];
+
     // Note what extensions we sent.
     input.hello.sent_extensions = exts
         .iter()
         .map(ClientExtension::get_type)
         .collect();
 
+    #[allow(unused_mut)]
     let mut cipher_suites: Vec<_> = config
         .provider
         .cipher_suites
@@ -287,7 +314,7 @@ fn emit_client_hello_for_retry(
         })
         .collect();
     // We don't do renegotiation at all, in fact.
-    cipher_suites.push(CipherSuite::TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
+    // cipher_suites.push(CipherSuite::TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
 
     let mut chp = HandshakeMessagePayload {
         typ: HandshakeType::ClientHello,

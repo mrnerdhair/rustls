@@ -95,6 +95,7 @@ enum_builder! {
         UseSRTP => 0x000e,
         Heartbeat => 0x000f,
         ALProtocolNegotiation => 0x0010,
+        RecordSizeLimit => 0x001c,
         SCT => 0x0012,
         Padding => 0x0015,
         ExtendedMasterSecret => 0x0017,

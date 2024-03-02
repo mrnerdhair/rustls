@@ -555,6 +555,8 @@ pub enum ClientExtension {
     TransportParameters(Vec<u8>),
     TransportParametersDraft(Vec<u8>),
     EarlyData,
+    RecordSizeLimit(u16),
+    RenegotiationInfo(PayloadU8),
     Unknown(UnknownExtension),
 }
 
@@ -577,6 +579,8 @@ impl ClientExtension {
             Self::TransportParameters(_) => ExtensionType::TransportParameters,
             Self::TransportParametersDraft(_) => ExtensionType::TransportParametersDraft,
             Self::EarlyData => ExtensionType::EarlyData,
+            Self::RecordSizeLimit(_) => ExtensionType::RecordSizeLimit,
+            Self::RenegotiationInfo(_) => ExtensionType::RenegotiationInfo,
             Self::Unknown(ref r) => r.typ,
         }
     }
@@ -606,6 +610,8 @@ impl Codec for ClientExtension {
             Self::TransportParameters(ref r) | Self::TransportParametersDraft(ref r) => {
                 nested.buf.extend_from_slice(r);
             }
+            Self::RecordSizeLimit(ref r) => r.encode(nested.buf),
+            Self::RenegotiationInfo(ref r) => r.encode(nested.buf),
             Self::Unknown(ref r) => r.encode(nested.buf),
         }
     }
