@@ -76,6 +76,7 @@ pub(super) fn handle_server_hello(
     early_key_schedule: Option<KeyScheduleEarly>,
     hello: ClientHelloDetails,
     our_key_share: Box<dyn ActiveKeyExchange>,
+    #[allow(unused_variables, unused_mut)]
     mut sent_tls13_fake_ccs: bool,
 ) -> hs::NextStateOrError {
     validate_server_hello(cx.common, server_hello)?;
@@ -172,7 +173,7 @@ pub(super) fn handle_server_hello(
         cx.common,
     );
 
-    emit_fake_ccs(&mut sent_tls13_fake_ccs, cx.common);
+    // emit_fake_ccs(&mut sent_tls13_fake_ccs, cx.common);
 
     Ok(Box::new(ExpectEncryptedExtensions {
         config,
