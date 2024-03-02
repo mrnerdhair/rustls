@@ -113,7 +113,7 @@ pub(super) fn start_handshake(
     };
 
     #[cfg_attr(not(feature = "tls12"), allow(unused_mut))]
-    let mut session_id = None;
+    let mut session_id: Option<SessionId> = None;
     if let Some(_resuming) = &mut resuming {
         #[cfg(feature = "tls12")]
         if let ClientSessionValue::Tls12(inner) = &mut _resuming.value {
