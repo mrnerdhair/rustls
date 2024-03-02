@@ -4,6 +4,7 @@ use crate::check::inappropriate_handshake_message;
 use crate::common_state::{CommonState, State};
 use crate::conn::ConnectionRandoms;
 use crate::crypto::ActiveKeyExchange;
+#[allow(unused_imports)]
 use crate::enums::{AlertDescription, CipherSuite, ContentType, HandshakeType, ProtocolVersion};
 use crate::error::{Error, PeerIncompatible, PeerMisbehaved};
 use crate::hash_hs::HandshakeHashBuffer;
@@ -12,7 +13,9 @@ use crate::log::{debug, trace};
 use crate::msgs::base::Payload;
 use crate::msgs::enums::{Compression, ExtensionType};
 use crate::msgs::enums::{ECPointFormat, PSKKeyExchangeMode};
+#[allow(unused_imports)]
 use crate::msgs::handshake::{ConvertProtocolNameList, UnknownExtension};
+#[allow(unused_imports)]
 use crate::msgs::handshake::{CertificateStatusRequest, ClientSessionTicket};
 use crate::msgs::handshake::{ClientExtension, HasServerExtensions};
 use crate::msgs::handshake::{ClientHelloPayload, HandshakeMessagePayload, HandshakePayload};
@@ -112,6 +115,7 @@ pub(super) fn start_handshake(
         None
     };
 
+    #[allow(unused_variables)]
     #[cfg_attr(not(feature = "tls12"), allow(unused_mut))]
     let mut session_id: Option<SessionId> = None;
     if let Some(_resuming) = &mut resuming {

@@ -207,6 +207,7 @@ enum_builder! {
 }
 
 impl ECPointFormat {
+    #[allow(dead_code)]
     pub(crate) const SUPPORTED: [Self; 1] = [Self::Uncompressed];
 }
 

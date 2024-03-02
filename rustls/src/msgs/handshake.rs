@@ -514,6 +514,7 @@ impl Codec for CertificateStatusRequest {
 }
 
 impl CertificateStatusRequest {
+    #[allow(dead_code)]
     pub(crate) fn build_ocsp() -> Self {
         let ocsp = OcspCertificateStatusRequest {
             responder_ids: Vec::new(),
