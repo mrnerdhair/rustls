@@ -550,7 +550,7 @@ impl State<ServerConnectionData> for ExpectCertificate {
             Some((end_entity, intermediates)) => {
                 self.config
                     .verifier
-                    .verify_client_cert(end_entity, intermediates, UnixTime::now())
+                    .verify_client_cert(end_entity, intermediates, UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)))
                     .map_err(|err| {
                         cx.common
                             .send_cert_verify_error_alert(err)
@@ -784,7 +784,7 @@ fn emit_ticket(
     ticketer: &dyn ProducesTickets,
 ) -> Result<(), Error> {
     let plain =
-        get_server_connection_value_tls12(secrets, using_ems, cx, UnixTime::now()).get_encoding();
+        get_server_connection_value_tls12(secrets, using_ems, cx, UnixTime::since_unix_epoch(core::time::Duration::from_secs(0))).get_encoding();
 
     // If we can't produce a ticket for some reason, we can't
     // report an error. Send an empty one.
@@ -875,7 +875,7 @@ impl State<ServerConnectionData> for ExpectFinished {
                 &self.secrets,
                 self.using_ems,
                 cx,
-                UnixTime::now(),
+                UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
             );
 
             let worked = self

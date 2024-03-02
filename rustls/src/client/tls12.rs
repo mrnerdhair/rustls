@@ -983,7 +983,7 @@ impl ExpectFinished {
                 .peer_certificates
                 .clone()
                 .unwrap_or_default(),
-            UnixTime::now(),
+                UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
             lifetime,
             self.using_ems,
         );

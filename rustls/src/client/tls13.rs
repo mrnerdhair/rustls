@@ -673,7 +673,7 @@ impl State<ClientConnectionData> for ExpectCertificateVerify {
                 intermediates,
                 &self.server_name,
                 &self.server_cert.ocsp_response,
-                UnixTime::now(),
+                UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
             )
             .map_err(|err| {
                 cx.common
@@ -956,7 +956,7 @@ impl ExpectTraffic {
                 .peer_certificates
                 .clone()
                 .unwrap_or_default(),
-            UnixTime::now(),
+            UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
             nst.lifetime,
             nst.age_add,
             nst.get_max_early_data_size()

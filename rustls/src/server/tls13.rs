@@ -315,7 +315,7 @@ mod client_hello {
                     let resume = match self
                         .attempt_tls13_ticket_decryption(&psk_id.identity.0)
                         .map(|resumedata| {
-                            resumedata.set_freshness(psk_id.obfuscated_ticket_age, UnixTime::now())
+                            resumedata.set_freshness(psk_id.obfuscated_ticket_age, UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)))
                         })
                         .filter(|resumedata| {
                             hs::can_resume(self.suite.into(), &cx.data.sni, false, resumedata)
@@ -921,7 +921,7 @@ impl State<ServerConnectionData> for ExpectCertificate {
 
         self.config
             .verifier
-            .verify_client_cert(end_entity, intermediates, UnixTime::now())
+            .verify_client_cert(end_entity, intermediates, UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)))
             .map_err(|err| {
                 cx.common
                     .send_cert_verify_error_alert(err)
@@ -1094,7 +1094,7 @@ impl ExpectFinished {
             key_schedule,
             cx,
             &nonce,
-            UnixTime::now(),
+            UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
             age_add,
         )
         .get_encoding();

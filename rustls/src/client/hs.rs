@@ -71,7 +71,7 @@ fn find_session(
             None
         })
         .and_then(|resuming| {
-            let retrieved = persist::Retrieved::new(resuming, UnixTime::now());
+            let retrieved = persist::Retrieved::new(resuming, UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)));
             match retrieved.has_expired() {
                 false => Some(retrieved),
                 true => None,
@@ -119,6 +119,7 @@ pub(super) fn start_handshake(
     #[cfg_attr(not(feature = "tls12"), allow(unused_mut))]
     let mut session_id: Option<SessionId> = None;
     if let Some(_resuming) = &mut resuming {
+        #[allow(unused_assignments)]
         #[cfg(feature = "tls12")]
         if let ClientSessionValue::Tls12(inner) = &mut _resuming.value {
             // If we have a ticket, we use the sessionid as a signal that

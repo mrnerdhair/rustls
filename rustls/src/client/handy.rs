@@ -236,7 +236,7 @@ mod tests {
     fn test_noclientsessionstorage_does_nothing() {
         let c = NoClientSessionStorage {};
         let name = ServerName::try_from("example.com").unwrap();
-        let now = UnixTime::now();
+        let now = UnixTime::since_unix_epoch(core::time::Duration::from_secs(0));
 
         c.set_kx_hint(name.clone(), NamedGroup::X25519);
         assert_eq!(None, c.kx_hint(&name));

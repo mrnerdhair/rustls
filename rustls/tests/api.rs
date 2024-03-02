@@ -11,6 +11,7 @@ use std::ops::{Deref, DerefMut};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::Duration;
 
 use pki_types::{CertificateDer, IpAddr, ServerName, UnixTime};
 use provider::cipher_suite;
@@ -1241,7 +1242,7 @@ fn client_check_server_certificate_helper_api() {
             &ParsedCertificate::try_from(chain.first().unwrap()).unwrap(),
             &correct_roots,
             &[chain.get(1).unwrap().clone()],
-            UnixTime::now(),
+            UnixTime::since_unix_epoch(Duration::from_secs(0)),
             webpki::ALL_VERIFICATION_ALGS,
         )
         .is_ok());
@@ -1251,7 +1252,7 @@ fn client_check_server_certificate_helper_api() {
                 &ParsedCertificate::try_from(chain.first().unwrap()).unwrap(),
                 &incorrect_roots,
                 &[chain.get(1).unwrap().clone()],
-                UnixTime::now(),
+                UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)),
                 webpki::ALL_VERIFICATION_ALGS,
             )
             .unwrap_err(),

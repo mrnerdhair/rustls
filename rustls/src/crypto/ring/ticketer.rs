@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn ticketswitcher_switching_test() {
         let t = Arc::new(crate::ticketer::TicketSwitcher::new(1, make_ticket_generator).unwrap());
-        let now = UnixTime::now();
+        let now = UnixTime::since_unix_epoch(core::time::Duration::from_secs(0));
         let cipher1 = t.encrypt(b"ticket 1").unwrap();
         assert_eq!(t.decrypt(&cipher1).unwrap(), b"ticket 1");
         {

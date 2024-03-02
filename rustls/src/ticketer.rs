@@ -46,9 +46,9 @@ impl TicketSwitcher {
                 next: Some(generator()?),
                 current: generator()?,
                 previous: None,
-                next_switch_time: UnixTime::now()
+                next_switch_time: 0 /*UnixTime::now()
                     .as_secs()
-                    .saturating_add(u64::from(lifetime)),
+                    .saturating_add(u64::from(lifetime)),*/
             }),
         })
     }
@@ -144,13 +144,13 @@ impl ProducesTickets for TicketSwitcher {
     }
 
     fn encrypt(&self, message: &[u8]) -> Option<Vec<u8>> {
-        let state = self.maybe_roll(UnixTime::now())?;
+        let state = self.maybe_roll(UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)))?;
 
         state.current.encrypt(message)
     }
 
     fn decrypt(&self, ciphertext: &[u8]) -> Option<Vec<u8>> {
-        let state = self.maybe_roll(UnixTime::now())?;
+        let state = self.maybe_roll(UnixTime::since_unix_epoch(core::time::Duration::from_secs(0)))?;
 
         // Decrypt with the current key; if that fails, try with the previous.
         state
